@@ -114,6 +114,14 @@ p {
 	cursor: pointer;
 }
 
+.redKey {
+	background-color:#EC5D49;
+}
+
+.greenKey {
+	background-color:#10A95B;
+}
+
 .new-game-btn {
     background-color: #11B5E5;
     border: 1px solid #D7D7D7;
