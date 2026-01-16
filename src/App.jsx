@@ -20,7 +20,11 @@ export default function AssemblyEndgame() {
 		</span>
 	))
 
-	const lettersElements = currentWord.split("").map((letter, index) => <span key={index} className="letter">{letter.toUpperCase()}</span>)
+	const letterElements = currentWord.split("").map((letter, index) => (
+		<span key={index} className="letter">
+			{guessedLetters.includes(letter) && letter.toUpperCase()}
+		</span>
+	))
 
 	const keyboardElements = alphabet.split("").map(letter => {
 		const isGuessed = guessedLetters.includes(letter)
@@ -60,7 +64,7 @@ export default function AssemblyEndgame() {
                 {languageElements}
             </section>
 			<section className="word">
-                {lettersElements}
+                {letterElements}
             </section>
 			<section className="keyboard">
                 {keyboardElements}
