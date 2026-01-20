@@ -5,20 +5,30 @@ import clsx from 'clsx'
 export default function AssemblyEndgame() {
 
 	const [currentWord, setCurrentWord] = useState("react")
-
 	const [guessedLetters, setGuessedLetters] = useState([])
+
+	const wrongGuessCount = guessedLetters.filter(letter => !currentWord.includes(letter)).length
 
 	const alphabet ="qwertyuiopasdfghjklzxcvbnm"
 
-	const languageElements = languages.map (lang => (
-		<span 
-			className="chip" 
-			style={{backgroundColor: lang.backgroundColor, color: lang.color}}
-			key={lang.name}
-		>
-			{lang.name}
-		</span>
-	))
+	function addGuessedLetter(letter) {
+		setGuessedLetters(prevLetters => prevLetters.includes(letter) ? prevLetters : [...prevLetters, letter])
+    }
+
+	const languageElements = languages.map ((lang, index) => {
+		const isLost = index < wrongGuessCount
+		const className = clsx("chip", isLost && "lost")
+
+		return (
+			<span 
+				className = {className}
+				style={{backgroundColor: lang.backgroundColor, color: lang.color}}
+				key={lang.name}
+			>
+				{lang.name}
+			</span>
+		)
+	})
 
 	const letterElements = currentWord.split("").map((letter, index) => (
 		<span key={index} className="letter">
@@ -30,7 +40,7 @@ export default function AssemblyEndgame() {
 		const isGuessed = guessedLetters.includes(letter)
 		const isCorrect = isGuessed && currentWord.includes(letter)
 		const isWrong = isGuessed && !currentWord.includes(letter)
-		const className = clsx('key', {
+		const className = clsx("key", {
 			greenKey: isCorrect,
 			redKey: isWrong
 		})
@@ -45,10 +55,6 @@ export default function AssemblyEndgame() {
 		</button>
 		)
 	})
-
-    function addGuessedLetter(letter) {
-		setGuessedLetters(prevLetters => prevLetters.includes(letter) ? prevLetters : [...prevLetters, letter])
-    }
 
     return (
         <main>

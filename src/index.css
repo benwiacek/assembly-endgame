@@ -68,6 +68,22 @@ p {
 .chip {
 	padding: 0.25em;
 	border-radius: 3px;
+	position: relative;
+}
+
+/* Dimmed overlay with skull on "lost" languages */
+.chip.lost::before {
+    content: "💀";
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    font-size: 0.85rem;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .word {
