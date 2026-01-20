@@ -9,7 +9,11 @@ export default function AssemblyEndgame() {
 
 	const wrongGuessCount = guessedLetters.filter(letter => !currentWord.includes(letter)).length
 
-	const alphabet ="qwertyuiopasdfghjklzxcvbnm"
+	const isGamewon = currentWord.split("").every(letter => guessedLetters.includes(letter))
+	const isGameLost = wrongGuessCount >= (languages.length - 1)
+	const isGameOver =  isGamewon || isGameLost
+
+	const alphabet = "qwertyuiopasdfghjklzxcvbnm"
 
 	function addGuessedLetter(letter) {
 		setGuessedLetters(prevLetters => prevLetters.includes(letter) ? prevLetters : [...prevLetters, letter])
@@ -75,7 +79,7 @@ export default function AssemblyEndgame() {
 			<section className="keyboard">
                 {keyboardElements}
             </section>
-			<button className="new-game-btn">New Game</button>
+			{isGameOver &&	<button className="new-game-btn">New Game</button>}
         </main>
     )
 }
