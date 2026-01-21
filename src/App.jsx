@@ -9,15 +9,41 @@ export default function AssemblyEndgame() {
 
 	const wrongGuessCount = guessedLetters.filter(letter => !currentWord.includes(letter)).length
 
-	const isGamewon = currentWord.split("").every(letter => guessedLetters.includes(letter))
-	const isGameLost = wrongGuessCount >= (languages.length - 1)
-	const isGameOver =  isGamewon || isGameLost
+	const isGameWon = currentWord.split("").every(letter => guessedLetters.includes(letter))
+	const isGameLost = wrongGuessCount >= languages.length - 1
+	const isGameOver =  isGameWon || isGameLost
 
 	const alphabet = "qwertyuiopasdfghjklzxcvbnm"
 
 	function addGuessedLetter(letter) {
 		setGuessedLetters(prevLetters => prevLetters.includes(letter) ? prevLetters : [...prevLetters, letter])
     }
+
+	function renderGameStatus() {
+        if (!isGameOver) {
+			return null
+		} 
+		else if (isGameWon) {
+			return (
+				<>
+					<h2>You win!</h2>
+					<p>Well done! 🎉</p>
+				</>
+			)
+		} else {
+			return (
+				<>
+					<h2>Game over!</h2>
+					<p>You lost. Better start learning Assembly 😭</p>
+				</>
+			)
+		}
+	}
+
+	const gameStatusClass = clsx("game-status", {
+		won: isGameWon,
+		lost: isGameLost
+	})
 
 	const languageElements = languages.map ((lang, index) => {
 		const isLost = index < wrongGuessCount
@@ -66,9 +92,8 @@ export default function AssemblyEndgame() {
 				<h1>Assembly: Endgame</h1>
 				<p className="description">Guess the word in under 8 attempts to keep the programming world safe from Assembly!</p>
             </header>
-			<section className="game-status">
-				<h2 className="status-main">You win!</h2>
-				<p className="status-sub">Well done! 🎉</p>
+			<section className={gameStatusClass}>
+				{renderGameStatus()}
 			</section>
 			<section className="language-chips">
                 {languageElements}
