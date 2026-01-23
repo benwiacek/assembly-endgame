@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { languages } from "./languages"
 import clsx from 'clsx'
-import { getFarewellText } from "./utils"
+import { getFarewellText, getNewWord } from "./utils"
+import Confetti from "react-confetti"
 
 export default function AssemblyEndgame() {
 
-	const [currentWord, setCurrentWord] = useState("react")
+	const [currentWord, setCurrentWord] = useState(() => getNewWord())
 	const [guessedLetters, setGuessedLetters] = useState([])
-
-	const wrongGuessCount = guessedLetters.filter(letter => !currentWord.includes(letter)).length
+    const wrongGuessCount = guessedLetters.filter(letter => !currentWord.includes(letter)).length
+    const numGuessesLeft = languages.length - 1 - wrongGuessCount
 
 	const isGameWon = currentWord.split("").every(letter => guessedLetters.includes(letter))
 	const isGameLost = wrongGuessCount >= languages.length - 1
@@ -53,8 +54,6 @@ export default function AssemblyEndgame() {
 		farewell: !isGameOver && isLastGuessIncorrect
 	})
 
-
-
 	const languageElements = languages.map ((lang, index) => {
 		const isLost = index < wrongGuessCount
 		const className = clsx("chip", isLost && "lost")
@@ -70,11 +69,17 @@ export default function AssemblyEndgame() {
 		)
 	})
 
-	const letterElements = currentWord.split("").map((letter, index) => (
-		<span key={index} className="letter">
-			{guessedLetters.includes(letter) && letter.toUpperCase()}
-		</span>
-	))
+	const letterElements = currentWord.split("").map((letter, index) => {
+		const shouldRevealLetter = isGameLost || guessedLetters.includes(letter)
+		const letterClassName = clsx("letter", 
+			isGameLost && !guessedLetters.includes(letter) && "lost"
+		)
+			return (
+			<span key={index} className={letterClassName}>
+				{shouldRevealLetter && letter.toUpperCase()}
+			</span>
+			)
+})
 
 	const keyboardElements = alphabet.split("").map(letter => {
 		const isGuessed = guessedLetters.includes(letter)
@@ -82,7 +87,7 @@ export default function AssemblyEndgame() {
 		const isWrong = isGuessed && !currentWord.includes(letter)
 		const className = clsx("key", {
 			greenKey: isCorrect,
-			redKey: isWrong
+			redKey: isWrong,
 		})
 		
 		return (
@@ -90,31 +95,70 @@ export default function AssemblyEndgame() {
             className={className}
 			key={letter} 
 			onClick={() => addGuessedLetter(letter)}
+			disabled= {isGameOver}
+			aria-disabled={guessedLetters.includes(letter)}
 		>
 			{letter.toUpperCase()}
 		</button>
 		)
 	})
 
+	function startNewGame() {
+		setCurrentWord(getNewWord())
+		setGuessedLetters([])
+	}
+
     return (
         <main>
+			{isGameWon && 
+				<Confetti 
+					recycle={false}
+                    numberOfPieces={1000}
+				/>
+			}
             <header>
 				<h1>Assembly: Endgame</h1>
 				<p className="description">Guess the word in under 8 attempts to keep the programming world safe from Assembly!</p>
             </header>
-			<section className={gameStatusClass}>
+			
+			<section
+				aria-live="polite" 
+                role="status" 
+                className={gameStatusClass}
+			>
 				{renderGameStatus()}
 			</section>
+
 			<section className="language-chips">
                 {languageElements}
             </section>
+
 			<section className="word">
                 {letterElements}
             </section>
+		
+		{/* Combined visually-hidden aria-live region for status updates */}
+			<section 
+				className="sr-only"
+				aria-live="polite"
+				role="status"
+			>
+				<p>
+					{currentWord.includes(lastGuessedLetter) ?
+						`Correct! The letter ${lastGuessedLetter} is in the word.` :
+						`Sorry, the letter ${lastGuessedLetter} is not the word.`
+					}
+					You have {numGuessesLeft} attempts left.
+				</p>
+				<p>Current word: {currentWord.split("").map(letter => 
+					guessedLetters.includes(letter)? letter + "." : "blank.")
+					.join(" ")}</p>
+			</section>
+
 			<section className="keyboard">
                 {keyboardElements}
             </section>
-			{isGameOver &&	<button className="new-game-btn">New Game</button>}
+			{isGameOver &&	<button className="new-game-btn" onClick={() => startNewGame()}>New Game</button>}
         </main>
     )
 }
