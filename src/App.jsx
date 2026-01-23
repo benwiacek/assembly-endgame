@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { languages } from "./languages"
 import clsx from 'clsx'
+import { getFarewellText } from "./utils"
 
 export default function AssemblyEndgame() {
 
@@ -13,6 +14,9 @@ export default function AssemblyEndgame() {
 	const isGameLost = wrongGuessCount >= languages.length - 1
 	const isGameOver =  isGameWon || isGameLost
 
+	const lastGuessedLetter = guessedLetters[guessedLetters.length-1]
+	const isLastGuessIncorrect = lastGuessedLetter && !currentWord.includes(lastGuessedLetter)
+
 	const alphabet = "qwertyuiopasdfghjklzxcvbnm"
 
 	function addGuessedLetter(letter) {
@@ -20,17 +24,18 @@ export default function AssemblyEndgame() {
     }
 
 	function renderGameStatus() {
-        if (!isGameOver) {
-			return null
-		} 
-		else if (isGameWon) {
+        if (!isGameOver && isLastGuessIncorrect) {
+				return <p className="farewell-message">{getFarewellText((languages[wrongGuessCount-1]).name)}</p>
+		}
+		
+		if (isGameWon) {
 			return (
 				<>
 					<h2>You win!</h2>
 					<p>Well done! 🎉</p>
 				</>
 			)
-		} else {
+		} if (isGameLost) {
 			return (
 				<>
 					<h2>Game over!</h2>
@@ -38,12 +43,17 @@ export default function AssemblyEndgame() {
 				</>
 			)
 		}
+
+		return<p></p>
 	}
 
 	const gameStatusClass = clsx("game-status", {
 		won: isGameWon,
-		lost: isGameLost
+		lost: isGameLost,
+		farewell: !isGameOver && isLastGuessIncorrect
 	})
+
+
 
 	const languageElements = languages.map ((lang, index) => {
 		const isLost = index < wrongGuessCount
